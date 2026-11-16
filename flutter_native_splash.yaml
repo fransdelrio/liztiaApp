@@ -1,0 +1,15 @@
+flutter_native_splash:
+  background_image: assets/images/splash-screen.jpg
+  android_gravity: fill
+  ios_content_mode: scaleAspectFill
+  fullscreen: false
+  # Web no es plataforma objetivo: evita que `create` regenere web/.
+  web: false
+
+  android_12:
+    color: "#FFFFFF"
+    image: assets/images/splash-icon.png
+
+# Nota: después de `dart run flutter_native_splash:create`, mover
+# android/app/src/main/res/drawable/background.png a
+# android/app/src/main/res/drawable-nodpi/ para evitar el reescalado por densidad.

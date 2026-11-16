@@ -1,0 +1,32 @@
+
+# Configuración por defecto: normaliza todos los archivos de texto a LF (Mac/Linux)
+* text=auto eol=lf
+
+
+# Scripts específicos de Windows mantienen CRLF para ejecutarse sin errores
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+
+# Scripts de Mac/Linux y wrappers de Gradle deben ser estrictamente LF
+*.sh text eol=lf
+gradlew text eol=lf
+
+
+# Archivos de configuración de Xcode (iOS) deben mantener LF
+*.pbxproj text eol=lf
+*.plist text eol=lf
+*.xcconfig text eol=lf
+*.swift text eol=lf
+
+
+# Archivos binarios (imágenes, fuentes, íconos) no deben ser modificados por Git
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.ttf binary
+*.otf binary
+
