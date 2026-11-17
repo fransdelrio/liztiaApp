@@ -124,6 +124,7 @@ Estas reglas viven en el código y la UI (NO hay claves foráneas ni triggers en
 4. **Registro atómico:** un registro nuevo siempre escribe `persons` + `history` en la misma transacción (`saveRegistration`), evitando huérfanos de cualquier tipo.
 5. **Columnas NOT NULL:** en el esquema real, `persona_id`, `nombre`, `apellido`, `fecha` y `timestamp` son `NOT NULL`; una fila de historial sin snapshot de identidad no es representable.
 6. **Consistencia personas ↔ caras:** la limpieza de caras sin persona correspondiente la hace `CleanupService` al arrancar, fuera de este documento (ver `lib/services/cleanup_service.dart`).
+7. **Normalización de nombre/apellido (UI, no BD):** la app restringe los campos Nombre/Apellido a letras del español (con tildes/diéresis/ñ) y espacios mediante `SpanishNameInputFormatter` (`lib/utils/name_input_formatters.dart`) y guarda en MAYÚSCULAS, tanto al escribir como al guardar (`trim().toUpperCase()` en `_save` de `lib/screens/register_screen.dart`). SQLite no impone esta restricción: la regla vive en la UI. (F0001)
 
 ## 7. Pendiente
 

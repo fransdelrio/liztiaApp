@@ -11,6 +11,7 @@ import '../services/cleanup_service.dart';
 import '../services/database_service.dart';
 import '../services/face_service.dart';
 import '../utils/date_formats.dart';
+import '../utils/name_input_formatters.dart';
 import '../widgets/liztia_app_bar.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -187,8 +188,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _showMessage('Debes tomar las $_maxPhotos fotos');
       return;
     }
-    final nombre = _nombre.text.trim();
-    final apellido = _apellido.text.trim();
+    final nombre = _nombre.text.trim().toUpperCase();
+    final apellido = _apellido.text.trim().toUpperCase();
     if (nombre.isEmpty || apellido.isEmpty) {
       _showMessage('Ingresa nombre y apellido');
       return;
@@ -398,12 +399,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _nombre,
                     enabled: !_registering,
                     maxLength: 20,
+                    inputFormatters: [SpanishNameInputFormatter(maxLength: 20)],
                     decoration: const InputDecoration(labelText: 'Nombre'),
                   ),
                   TextField(
                     controller: _apellido,
                     enabled: !_registering,
                     maxLength: 20,
+                    inputFormatters: [SpanishNameInputFormatter(maxLength: 20)],
                     decoration: const InputDecoration(labelText: 'Apellido'),
                   ),
                   const SizedBox(height: 8),

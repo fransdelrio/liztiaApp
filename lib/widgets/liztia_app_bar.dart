@@ -27,7 +27,10 @@ class LiztiaAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       title: Text(title),
-      actions: [...actions, ThemeToggleButton(controller: themeController)],
+      actions: [
+        ...actions,
+        ThemeToggleButton(controller: themeController),
+      ],
     );
   }
 }

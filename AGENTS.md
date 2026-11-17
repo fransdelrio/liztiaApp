@@ -47,7 +47,8 @@ lib/
 │   ├── app_theme.dart          # ThemeData M3 claro/oscuro + estilos de botón
 │   └── theme_controller.dart   # ThemeMode + persistencia (theme_mode.txt)
 ├── utils/
-│   └── date_formats.dart
+│   ├── date_formats.dart
+│   └── name_input_formatters.dart  # SpanishNameInputFormatter (letras ES + MAYÚSCULAS)
 └── widgets/
     ├── liztia_app_bar.dart     # AppBar común (título + toggle de tema)
     └── theme_toggle_button.dart
@@ -92,7 +93,7 @@ Reglas:
 3. **Escaneo (`scan_screen.dart`)** - Cámara + botón `"Escanear"` + botón `"Volver"` abajo.
 4. **Match exitoso** - Resolver `persona_id` en `persons`; mostrar `nombre` + `apellido` + ✅ durante 3 s (ocultando `"Escanear"`/`"Volver"`) e insertar historial con snapshot.
 5. **Sin coincidencia o ID sin persona** - Mostrar `"No ha sido posible identificar"` con botones `"Escanear"` (reintentar) y `"Registrar"`. No insertar historial.
-6. **Registro (`register_screen.dart`)** - 3 fotos con contador y validación de un solo rostro; nombre/apellido; registrar caras; guardar `persons` + `history`; borrar fotos. Al volver, `scan_screen` muestra una pantalla del color `colorScheme.surface` (blanca en claro, oscura en oscuro) con `"Registro Exitoso!"` + nombre/apellido + ✅ durante 3 s y después restaura la cámara con `"Escanear"` y `"Volver"`. Si se vuelve **sin** registro exitoso, `_openRegistration` reinicia la cámara con `_restartCamera()` (el preview puede quedar congelado al recuperar el foco tras `Navigator.push`).
+6. **Registro (`register_screen.dart`)** - 3 fotos con contador y validación de un solo rostro; nombre/apellido (solo letras del español con tildes/diéresis/ñ y espacios, en MAYÚSCULAS: `SpanishNameInputFormatter` en `lib/utils/name_input_formatters.dart` + normalización `trim().toUpperCase()` en `_save`); registrar caras; guardar `persons` + `history`; borrar fotos. Al volver, `scan_screen` muestra una pantalla del color `colorScheme.surface` (blanca en claro, oscura en oscuro) con `"Registro Exitoso!"` + nombre/apellido + ✅ durante 3 s y después restaura la cámara con `"Escanear"` y `"Volver"`. Si se vuelve **sin** registro exitoso, `_openRegistration` reinicia la cámara con `_restartCamera()` (el preview puede quedar congelado al recuperar el foco tras `Navigator.push`).
 7. **Historial (`history_screen.dart`)** - Filtro por fecha (día anterior/siguiente y selector).
 
 ## Limpieza
@@ -126,6 +127,7 @@ Reglas:
 - **Asincronía:** `async/await`; manejar permisos con `permission_handler`.
 - **Rendimiento:** usar `const` cuando sea posible.
 - **SQLite:** toda la lógica en `DatabaseService`; `fecha` `YYYY-MM-DD`, `timestamp` `YYYYMMDDhhmmss`.
+- **Validación de nombres:** los campos Nombre/Apellido usan `SpanishNameInputFormatter` (`lib/utils/name_input_formatters.dart`): solo letras del español (con tildes/diéresis/ñ) y espacios, en MAYÚSCULAS; la normalización final (`trim().toUpperCase()`) se aplica también en `_save`.
 - **Facial:** toda la lógica de `face_verification` en `FaceService`.
 - **Archivos:** toda foto capturada debe borrarse con `CleanupService`.
 
@@ -161,12 +163,13 @@ flutter build apk --debug
 - **Respuestas breves:** Respuestas técnicas y resumidas; el humano pedirá más detalle si lo necesita.
 
 ## Estado actual
-- **Implementación:** flujo completo funcional; DB con `persons` + `history` (esquema v1, sin migraciones); limpieza de caras/fotos al iniciar.
+- **Implementación:** flujo completo funcional; DB con `persons` + `history` (esquema v1, sin migraciones); limpieza de caras/fotos al iniciar; validación/normalización de Nombre/Apellido en el registro (F001/F0001), completada y verificada por el humano.
+- **Tests:** 18/18 (`flutter analyze` 0 issues); incluye `test/name_input_formatters_test.dart` (7 tests del `SpanishNameInputFormatter`).
 - **Tema:** claro/oscuro Material 3 (`AppTheme`); paleta clara: superficie `#FFFFFF` + acento petróleo `#0F4C5C`; paleta oscura `#0B1E24` / `#102A32` / `#5FC2D3` / `#E3F0F3`. `ThemeMode` se persiste en `theme_mode.txt` (`getApplicationSupportDirectory()`), sin `shared_preferences`; **fix M1**: el tema persistido se carga en `lib/main.dart` antes de `runApp` (`ThemeController.instance.load()`), sin destello claro al arrancar en oscuro.
 - **Build:** `app-release.apk` del 10/11/2026 (167,2 MB; ABIs `arm64-v8a` + `armeabi-v7a`, sin `x86_64`); debug del 10/11/2026 (297,8 MB).
-- **Verificado:** `flutter analyze`, `flutter test` y `flutter build apk --release`.
-- **Pendiente:** prueba en dispositivo del flujo cámara y de la creación inicial del esquema; `ios/Podfile` en macOS.
+- **Verificado:** `flutter analyze` (0 issues), `flutter test` (18/18), formato limpio y `flutter build apk --release` (QA gate aprobado); F001 verificado por el humano en dispositivo (validación de Nombre/Apellido).
+- **Pendiente:** `ios/Podfile` en macOS. (La prueba en dispositivo de F001 ya la hizo el humano; F001 está Done en el roadmap.)
 - **Work State:**
   - **Active:** —
-  - **Completed:** F002 — Fix cámara congelada al volver del registro (release-before-push, `PopScope` en ambas pantallas, retry exponencial, reset del status a `idle`).
-  - **Next Move:** 1. Run QA gate via `ag_qa` · 2. Update docs · 3. Rebuild release APK · 4. Reinstall + device test.
+  - **Completed:** F002 — Fix cámara congelada al volver del registro (release-before-push, `PopScope` en ambas pantallas, retry exponencial, reset del status a `idle`). · F001 (F0001) — Nombre/Apellido: solo caracteres válidos (letras con tildes/diéresis/ñ y espacios), en MAYÚSCULAS al escribir y al guardar (`SpanishNameInputFormatter` en `lib/utils/name_input_formatters.dart` + normalización `trim().toUpperCase()` en `_save` de `register_screen.dart`); tests en `test/name_input_formatters_test.dart` (7 tests); QA gate aprobado (analyze 0 issues, 18/18 tests, format limpio, build OK); verificado por el humano en dispositivo y cerrado (Done en el roadmap).
+  - **Next Move:** `ios/Podfile` en macOS. (F001 verificado por el humano y cerrado en el roadmap.)
