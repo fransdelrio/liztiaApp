@@ -3,6 +3,9 @@
 .env.*
 *.pem
 *.key
+*.p12
+*.jks
+*.keystore
 
 # Miscellaneous
 *.class
